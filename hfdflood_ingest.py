@@ -125,13 +125,12 @@ def add_to_dayfile(day, readings, meta):
         log.debug(f"Opened existing dayfile {filename}, found {len(dayfile['items'])} existing reading/s")
         dayfile['items'] += readings
         # Update existing dayfile
-        s3object.put(Body=(bytes(json.dumps(dayfile, indent=2).encode('UTF-8'))))
+        s3object.put(Body=(bytes(json.dumps(dayfile).encode('UTF-8'))))
         log.info(f"Updated existing dayfile {filename}, added {len(readings)} new reading/s")
 
     except s3.meta.client.exceptions.NoSuchKey:
         # Create a new dayfile
-        # TODO: remove indentation/pretty-printing the JSON, it's not necessary
-        s3object.put(Body=(bytes(json.dumps({'meta': meta, 'items': readings}, indent=2).encode('UTF-8'))))
+        s3object.put(Body=(bytes(json.dumps({'meta': meta, 'items': readings}).encode('UTF-8'))))
         log.info(f"Created a new dayfile {filename} with {len(readings)} reading/s")
 
 
