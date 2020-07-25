@@ -24,7 +24,6 @@ def bootstrap_series(initial_date: date):
     # Append all readings received to their respective day's JSON file in the `items` array
     for day, readings in batched_readings.items():
         add_to_dayfile(day, readings, meta)
-    exit(0)
 
 
 def find_most_recent_dayfile(day, tries=0, search_limit=7):
@@ -147,6 +146,7 @@ def main():
         # TODO: this will probably be S3.Client.exceptions.NoSuchKey in AWS
         log.warning(f"Could not open dayfile: {dayfile_filename}; Entering bootstrap mode")
         bootstrap_series(dayfile_date)
+        exit(os.EX_OK)
 
     # find the last known reading from the items array
     last_known_reading = sorted(dayfile['items'], key=lambda k: k['dateTime'], reverse=True)[0]['dateTime']
