@@ -7,6 +7,7 @@ import math
 import boto3
 
 s3 = boto3.resource('s3')
+cloudwatch = boto3.client('cloudwatch')
 
 BUCKET = os.environ['BUCKET']
 MEASURE_ID = os.environ['MEASURE_ID']
@@ -127,7 +128,6 @@ def add_to_dayfile(day, readings, meta):
         # Update existing dayfile
         s3object.put(Body=(bytes(json.dumps(dayfile).encode('UTF-8'))))
         log.info(f"Updated existing dayfile {filename}, added {len(readings)} new reading/s")
-
     except s3.meta.client.exceptions.NoSuchKey:
         # Create a new dayfile
         s3object.put(Body=(bytes(json.dumps({'meta': meta, 'items': readings}).encode('UTF-8'))))
@@ -154,8 +154,11 @@ def lambda_handler(event, context):
     log.info(f"Found last known reading: {last_known_reading}")
 
     # Request readings taken since that last reading from the API
-    batched_readings, meta = fetch_readings_since(last_known_reading)
+    all_readings, meta = fetch_readings_since(last_known_reading)
+    cloudwatch.put_metric_data(Namespace='hfdflood/Ingest', MetricData=[{
+        'MetricName': 'ReadingsReceived', 'Value': sum([len(all_readings[r]) for r in all_readings])
+    }])
 
     # Append all readings received to their respective day's JSON file in the `items` array
-    for day, readings in batched_readings.items():
+    for day, readings in all_readings.items():
         add_to_dayfile(day, readings, meta)
