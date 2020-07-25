@@ -139,8 +139,8 @@ def main():
 
     try:
         with open(dayfile_filename, 'r') as f:
-            log.debug(f"Found most recent dayfile: {dayfile_filename}")
-            dayfile = json.load(f)
+            log.debug(f"Opening most recent dayfile: {dayfile_filename}")
+        dayfile = json.load(f)
     except FileNotFoundError:
         # The dayfile doesn't exist, probably because this is the first time we're being run
         # TODO: this will probably be S3.Client.exceptions.NoSuchKey in AWS
