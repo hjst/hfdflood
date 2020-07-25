@@ -136,6 +136,7 @@ def main():
     # Try to find the most recent dayfile (trying today, today-1, today-2 etc.)
     dayfile_date = find_most_recent_dayfile(date.today())
     dayfile_filename = format_dayfile_filename(dayfile_date)
+    dayfile = {}
 
     try:
         with open(dayfile_filename, 'r') as f:
