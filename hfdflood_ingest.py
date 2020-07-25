@@ -11,6 +11,7 @@ s3 = boto3.resource('s3')
 BUCKET = os.environ['BUCKET']
 MEASURE_ID = os.environ['MEASURE_ID']
 INTERVAL = 15  # readings interval in minutes
+MAX_DAYS_TO_SEARCH = 30  # careful (this*(60*24)/INTERVAL) isn't > API limit
 try:
     LOG_LEVEL = os.environ['LOG_LEVEL']
 except KeyError:
@@ -30,7 +31,7 @@ def bootstrap_series(initial_date: date):
         add_to_dayfile(day, readings, meta)
 
 
-def find_most_recent_dayfile(day, tries=0, search_limit=7):
+def find_most_recent_dayfile(day, tries=0, search_limit=MAX_DAYS_TO_SEARCH):
     """Return the date of the most recent dayfile, searching backwards in time for day, day-1, day-2 etc.."""
     log.debug(f"Entering find_most_recent_dayfile(day={day.isoformat()}, tries={tries})")
     try:
