@@ -97,8 +97,7 @@ def fetch_readings_since(since):
     # TODO: wrap this request in try/except once I see some real-world errors
     # TODO: add support for Last-Modified headers and If-Modified-Since requests
     # TODO: "At times of high load or in future versions of this API the service may redirect to an alternative URL."
-    # TODO: bump the bot version to 1.0
-    req = Request(query_url, headers={'User-Agent': 'HerefordFloodBot/0.1 (+https://bot.herefordflooded.uk)'})
+    req = Request(query_url, headers={'User-Agent': 'HerefordFloodBot/1.0 (+https://bot.herefordflooded.uk)'})
     res = urlopen(req)
     res_body = res.read()
     encoding = res.info().get_content_charset(failobj='utf-8')
