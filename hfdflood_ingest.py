@@ -16,7 +16,7 @@ try:
 except KeyError:
     LOG_LEVEL = "INFO"  # default level
 
-logging.basicConfig(format='%(levelname)s: %(message)s')
+logging.basicConfig(format='%(levelname)s: %(message)s')  # used locally but overridden in lambda
 log = logging.getLogger()
 log.setLevel(LOG_LEVEL)
 
@@ -32,11 +32,11 @@ def bootstrap_series(initial_date: date):
 
 def find_most_recent_dayfile(day, tries=0, search_limit=7):
     """Return the date of the most recent dayfile, searching backwards in time for day, day-1, day-2 etc.."""
-    log.info(f"Entering find_most_recent_dayfile(day={day.isoformat()}, tries={tries})")
+    log.debug(f"Entering find_most_recent_dayfile(day={day.isoformat()}, tries={tries})")
     try:
         s3object = s3.Object(BUCKET, format_dayfile_filename(day))
         s3object.get()
-        log.info(f"Success, found dayfile {format_dayfile_filename(day)}")
+        log.debug(f"Success, found dayfile {format_dayfile_filename(day)}")
         return day
     except s3.meta.client.exceptions.NoSuchKey:
         if tries == search_limit:
@@ -44,7 +44,6 @@ def find_most_recent_dayfile(day, tries=0, search_limit=7):
                         f" Returning oldest date: {day.isoformat()}")
             return day
         else:
-            log.info(f"Caught s3.meta.client.exceptions.NoSuchKey exception")
             return find_most_recent_dayfile(day - timedelta(days=1), tries + 1)
 
 
@@ -56,7 +55,7 @@ def format_dayfile_filename(day: date):
 def str_to_datetime(datetime_string: str):
     """Return a datetime object created from a string in the format received from the EA flood API."""
     if datetime_string[-1:] == "Z":
-        # The datetime string returned by the API has a "Z" at the end, which chokes python
+        # The datetime string returned by the API has a "Z" at the until, which chokes python
         datetime_string = datetime_string[:-1]
     try:
         datetime_object = datetime.fromisoformat(datetime_string)
@@ -86,7 +85,6 @@ def num_of_readings(since: datetime, until: datetime = datetime.now()):
 
 def fetch_readings_since(since):
     """Return a list of all the readings available from the given datetime until now."""
-
     query_url = f"https://environment.data.gov.uk/flood-monitoring" \
                 f"/id/measures/{MEASURE_ID}/readings?since={since}"
     estimate = num_of_readings(str_to_datetime(since))
@@ -124,7 +122,7 @@ def add_to_dayfile(day, readings, meta):
     s3object = s3.Object(BUCKET, filename)
     try:
         dayfile = json.loads(s3object.get()['Body'].read().decode('utf-8'))
-        log.debug(f"Reading existing dayfile {filename}, found {len(dayfile['items'])} existing reading/s")
+        log.debug(f"Opened existing dayfile {filename}, found {len(dayfile['items'])} existing reading/s")
         dayfile['items'] += readings
         # Update existing dayfile
         s3object.put(Body=(bytes(json.dumps(dayfile, indent=2).encode('UTF-8'))))
