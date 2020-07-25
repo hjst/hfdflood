@@ -30,7 +30,7 @@ def bootstrap_series(initial_date: date):
 def find_most_recent_dayfile(day, tries=0, search_limit=7):
     """Return the date of the most recent dayfile, searching backwards in time for day, day-1, day-2 etc.."""
     log.debug(f"Entering find_most_recent_dayfile(day={day.isoformat()}, tries={tries})")
-    if os.path.isfile(f'{day.isoformat()}.json'):
+    if os.path.isfile(format_dayfile_filename(day)):
         # Bingo
         return day
     elif tries == search_limit:
