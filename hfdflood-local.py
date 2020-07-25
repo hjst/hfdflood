@@ -12,8 +12,9 @@ try:
 except KeyError:
     LOG_LEVEL = "INFO"  # default level
 
-logging.basicConfig(format='%(levelname)s: %(message)s', level=LOG_LEVEL)
+logging.basicConfig(format='%(levelname)s: %(message)s')
 log = logging.getLogger()
+log.setLevel(LOG_LEVEL)
 
 
 def bootstrap_series(initial_date: date):
