@@ -141,7 +141,6 @@ def lambda_handler(event, context):
     # Try to find the most recent dayfile (trying today, today-1, today-2 etc.)
     dayfile_date = find_most_recent_dayfile(date.today())
     dayfile_filename = format_dayfile_filename(dayfile_date)
-    dayfile = {}
 
     try:
         log.info(f"Opening most recent dayfile: {dayfile_filename}")
