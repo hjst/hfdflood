@@ -10,6 +10,7 @@ s3 = boto3.resource('s3')
 
 BUCKET = os.environ['BUCKET']
 MEASURE_ID = os.environ['MEASURE_ID']
+INTERVAL = 15  # readings interval in minutes
 try:
     LOG_LEVEL = os.environ['LOG_LEVEL']
 except KeyError:
@@ -76,11 +77,11 @@ def trim_reading(reading):
         raise
 
 
-def estimate_number_of_readings(start: datetime, end: datetime = datetime.now()):
-    """"Return the number of readings that would exist between two points in time."""
-    delta = end - start
-    # The API seems to consistently return batched readings taken at 15 minute intervals
-    return math.floor((delta.total_seconds() / 60) / 15)
+def num_of_readings(since: datetime, until: datetime = datetime.now()):
+    """"Return the estimated number of readings that would exist between two points in time."""
+    delta = until - since
+    # We use floor() to round down because 1.99999 readings is 1 reading in an interval, not 2
+    return math.floor((delta.total_seconds() / 60) / INTERVAL)
 
 
 def fetch_readings_since(since):
@@ -88,12 +89,13 @@ def fetch_readings_since(since):
 
     query_url = f"https://environment.data.gov.uk/flood-monitoring" \
                 f"/id/measures/{MEASURE_ID}/readings?since={since}"
-    if estimate_number_of_readings(str_to_datetime(since)) > 500:
-        # If we're asking for a lot of readings, increase the limit, otherwise omit it to
-        # improve our chances of a cache hit (default limit is 500)
-        log.debug(f"Eeek, we're asking for a lot of readings! estimate={estimate_number_of_readings(str_to_datetime(since))}")
-        query_url += f"&_limit={estimate_number_of_readings(str_to_datetime(since)) + 1}"  # +1 for luck
-        log.debug(f"Query string is: {query_url}")
+    estimate = num_of_readings(str_to_datetime(since))
+    if estimate > 500:
+        # If we're asking for more than the default limit (500) add the _limit param,
+        # otherwise omit it to improve our chances of a cache hit
+        log.warning(f"Eek! We're asking for a lot of readings: estimate={estimate}")
+        query_url += f"&_limit={estimate + 1}"  # +1 for luck
+    log.debug(f"Requesting URL: {query_url}")
     # TODO: wrap this request in try/except once I see some real-world errors
     # TODO: add support for Last-Modified headers and If-Modified-Since requests
     # TODO: "At times of high load or in future versions of this API the service may redirect to an alternative URL."
