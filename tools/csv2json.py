@@ -43,7 +43,4 @@ for reading in hits:
     })
 
 print(json.dumps(output_obj), file=sys.stdout)
-
-print(f"Headers: {headers}", file=sys.stderr)
-print(f"Number of hits: {len(hits)}", file=sys.stderr)
-print(f"Number of CSV input lines: {line_counter}", file=sys.stderr)
+print(f"Hits: {len(hits)}, Lines: {line_counter}, Headers: {headers}", file=sys.stderr)
