@@ -123,7 +123,7 @@ def add_to_dayfile(day, readings, meta):
     try:
         dayfile = json.loads(s3object.get()['Body'].read().decode('utf-8'))
         log.debug(f"Opened existing dayfile {filename}, found {len(dayfile['items'])} existing reading/s")
-        dayfile['items'] += readings
+        dayfile['items'] += [r for r in readings if r not in dayfile['items']]  # ignore duplicates
         # Update existing dayfile
         s3object.put(Body=(bytes(json.dumps(dayfile).encode('UTF-8'))))
         log.info(f"Updated existing dayfile {filename}, added {len(readings)} new reading/s")
