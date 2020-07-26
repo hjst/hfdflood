@@ -97,7 +97,6 @@ def fetch_readings_since(since):
         query_url += f"&_limit={estimate + 1}"  # +1 for luck
     log.debug(f"Requesting URL: {query_url}")
     # TODO: wrap this request in try/except once I see some real-world errors
-    # TODO: add support for Last-Modified headers and If-Modified-Since requests
     # TODO: "At times of high load or in future versions of this API the service may redirect to an alternative URL."
     req = Request(query_url, headers={'User-Agent': 'HerefordFloodBot/1.0 (+https://bot.herefordflooded.uk)'})
     res = urlopen(req)
