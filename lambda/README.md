@@ -1,8 +1,17 @@
-# hfdflood
+# Lambda functions for data ingestion & processing
 
-Notes: https://workflowy.com/#/6578ce38500a
+## hfdflood_ingest.py
 
-## Environment variables
+- Runs on an every-15-minute EventBridge timer
+- Maintains a collection of JSON "dayfiles" in an S3 bucket containing the river level readings from a given measure
+    + Requests only new readings since the last recorded reading in the current dayfile
+    + Can be paused (or fail…) and then "catch up" later (up to ~30 days)
+    + Bootstraps itself from an empty bucket, so setting up parallel jobs to track other measures is quick
+- Trims extraneous data from the readings in the API response
+    + The responses contain useful fields like IDs and URIs which are redundant and temporary respectively
+- Sends the number of readings its processing to CloudWatch metrics for monitoring & alerts 
+
+### Environment variables
 
 | Variable | Notes | Example |
 | - | - | - |
@@ -10,7 +19,7 @@ Notes: https://workflowy.com/#/6578ce38500a
 | `BUCKET` | Name of the S3 bucket | `dev.rawdata.herefordflooded.uk` |
 | `LOG_LEVEL` | How verbose do you want the logs? Defaults to `INFO` | `DEBUG`, `INFO` or `WARNING` |
 
-## Developing locally
+### Developing locally
 
 You will need…
 
