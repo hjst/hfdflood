@@ -36,10 +36,11 @@ output_obj = {
     'items': []
 }
 
+hits = sorted(hits)
 for reading in hits:
     output_obj['items'].append({
         'dateTime': reading[headers.index('dateTime')],
-        'value': reading[headers.index('value')]
+        'value': float(reading[headers.index('value')])
     })
 
 print(json.dumps(output_obj), file=sys.stdout)
