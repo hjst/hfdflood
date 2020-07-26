@@ -29,12 +29,5 @@ jobs:
         aws_region: eu-west-2
         function_name: hfdflood-ingest
         source: lambda/hfdflood_ingest.py
-        dry_run: true
-        publish: false
-
-    # Runs a set of commands using the runners shell
-    - name: Run a multi-line script
-      run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
-
+        dry_run: false
+        publish: true

@@ -58,7 +58,7 @@ def str_to_datetime(datetime_string: str):
     """Return a datetime object created from a string in the format received from the EA flood API."""
     if datetime_string[-1:] == "Z":
         # The datetime string returned by the API has a "Z" at the until, which chokes python
-        datetime_string = datetime_string[:-1]
+        datetime_string = datetime_string[:-2]
     try:
         datetime_object = datetime.fromisoformat(datetime_string)
     except ValueError:
