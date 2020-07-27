@@ -160,3 +160,13 @@ def lambda_handler(event, context):
     # Append all readings received to their respective day's JSON file in the `items` array
     for day, readings in all_readings.items():
         add_to_dayfile(day, readings, meta)
+
+    if len(all_readings) > 0:
+        # Send the latest reading to CloudWatch for monitoring, if there is one
+        latest_reading = max(all_readings[max(all_readings)],
+                             key=lambda r: str_to_datetime(r['dateTime']))
+        log.info(f"Latest reading is: {latest_reading}")
+        cloudwatch.put_metric_data(Namespace='hfdflood/Ingest', MetricData=[{
+            'MetricName': 'RiverGaugeReading', 'Value': latest_reading['value'],
+            'Timestamp': str_to_datetime(latest_reading['dateTime']), 'Unit': 'None'
+        }])
