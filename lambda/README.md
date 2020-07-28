@@ -9,7 +9,13 @@
     + Bootstraps itself from an empty bucket, so setting up parallel jobs to track other measures is quick
 - Trims extraneous data from the readings in the API response
     + The responses contain useful fields like IDs and URIs which are redundant and temporary respectively
-- Sends the number of readings its processing to CloudWatch metrics for monitoring & alerts 
+- Sends metrics to CloudWatch for monitoring & alerts
+    + Number of readings received (`ReadingsReceived`)
+        * How does the API's result batching vary over time
+        * Sum'ing these verifies that we get 96 readings per day
+    + Value of the latest reading (`RiverGaugeReading`)
+        * Graphing the river level itself
+        * Sample count for this shows how many batch updates we receive each day (more when flooding is imminent?)
 
 ### Environment variables
 
