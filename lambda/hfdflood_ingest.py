@@ -3,6 +3,7 @@ import logging
 from datetime import date, timedelta, datetime
 import json
 from urllib.request import Request, urlopen
+from urllib.error import HTTPError
 import math
 import boto3
 
@@ -96,9 +97,13 @@ def fetch_readings_since(since):
         log.warning(f"Eek! We're asking for a lot of readings: estimate={estimate}")
         query_url += f"&_limit={estimate + 1}"  # +1 for luck
     log.debug(f"Requesting URL: {query_url}")
-    # TODO: wrap this request in try/except once I see some real-world errors
+    # TODO: catch specific HTTPError codes when we've seen more real-world examples
     req = Request(query_url, headers={'User-Agent': 'HerefordFloodBot/1.0 (+https://bot.herefordflooded.uk)'})
-    res = urlopen(req)
+    try:
+        res = urlopen(req)
+    except HTTPError as e:
+        log.error(f"Got an HTTPError from the API: code={e.code}, error={e}")
+        raise
     res_body = res.read()
     encoding = res.info().get_content_charset(failobj='utf-8')
     parsed_response = json.loads(res_body.decode(encoding))
